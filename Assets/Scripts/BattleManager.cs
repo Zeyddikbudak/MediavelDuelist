@@ -23,7 +23,7 @@ public class BattleManager : MonoBehaviour
 
     [Header("Dodge Klipleri")]
     public string dodgeClip = "Dodge";
-    public string dodgeForwardClip = "Dodge Forward";
+    
 
     [Header("Block Klipleri")]
     public string blockClip = "Block";
@@ -182,30 +182,15 @@ public class BattleManager : MonoBehaviour
 
         float originalSpeed = defAnim.speed;
         defAnim.speed = 1.4f;
-       
 
         int dodgeId = Animator.StringToHash(dodgeClip);
         if (defAnim.HasState(0, dodgeId))
         {
             defAnim.CrossFade(dodgeId, 0f, 0);
-            
-            
+            yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip));
         }
 
-        int forwardId = Animator.StringToHash(dodgeForwardClip);
-        if (defAnim.HasState(0, forwardId))
-        {
-            defAnim.CrossFade(forwardId, 0f, 0);
-            
-            
-        }
-
-        // Record the final transform after root motion so we can
-        // keep the character at this position / rotation once root
-        // motion is disabled again.
-               
-
-        
+        defAnim.speed = originalSpeed;
         PlayIdle(defAnim);
 
     }
