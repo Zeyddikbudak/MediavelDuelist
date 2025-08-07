@@ -117,6 +117,13 @@ public class PrepareFightUI : MonoBehaviour
             return;
         }
 
+        // BattleManager bileşeni devre dışı bırakılmışsa coroutine'ler çalışmaz.
+        // Savaşı başlatmadan önce nesnenin aktif ve script'in etkin olduğundan emin ol.
+        if (!battleManager.gameObject.activeSelf)
+            battleManager.gameObject.SetActive(true);
+        if (!battleManager.enabled)
+            battleManager.enabled = true;
+
         Debug.Log($"PrepareFightUI ► StartBattle çağrılıyor. Atk:{attack.Count}, Def:{defend.Count}");
         battleManager.SetPlayerSkillSet(attack.ToArray(), defend.ToArray());
         battleManager.StartBattle();
