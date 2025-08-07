@@ -61,8 +61,12 @@ public class BattleManager : MonoBehaviour
         var a = g.GetComponentInChildren<Animator>();
         if (a)
         {
-            a.updateMode = AnimatorUpdateMode.Fixed;
-            a.animatePhysics = true;
+            // Dodge sırasında karakterin yer değiştirebilmesi için
+            // root motion'ı Update döngüsünde uyguluyoruz. Physics
+            // tabanlı güncelleme, hareketi kısıtlayarak karakterin
+            // sadece dönmesine neden oluyordu.
+            a.updateMode = AnimatorUpdateMode.Normal;
+            a.animatePhysics = false;
             a.applyRootMotion = true;   //  <-- HER ZAMAN açık kalsın
         }
     }
@@ -211,6 +215,9 @@ public class BattleManager : MonoBehaviour
 
         /* 3) Hız sıfırla */
         anim.speed = originalSpeed;
+
+        // Dodge sonrasında karakteri tekrar idle durumuna al
+        PlayIdle(anim);
     }
     #endregion
 
