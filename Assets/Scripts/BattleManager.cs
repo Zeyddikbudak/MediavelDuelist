@@ -36,7 +36,7 @@ public class BattleManager : MonoBehaviour
     public float minDistance = 1.5f;
     public float maxDistance = 2.5f;
     public float walkSpeed = 1.5f;
-    public string walkClip = "Walking";
+    public string walkClip = "Walk";
     #endregion
 
     #region Alanlar
