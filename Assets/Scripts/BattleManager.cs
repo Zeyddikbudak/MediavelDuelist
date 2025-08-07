@@ -31,6 +31,12 @@ public class BattleManager : MonoBehaviour
     public string defenderBlockReactClip = "Defender Block React";
     [Tooltip("Defender Block React bittikten sonra Standing'e blend")]
     public float defenderBlendTime = 0.15f;
+
+    [Header("Mesafe Ayarları")]
+    public float minDistance = 1.5f;
+    public float maxDistance = 2.5f;
+    public float walkSpeed = 1.5f;
+    public string walkClip = "Walking";
     #endregion
 
     #region Alanlar
@@ -52,6 +58,13 @@ public class BattleManager : MonoBehaviour
     {
         SetFixedAnimator(player1);
         SetFixedAnimator(player2);
+    }
+
+    private void Update()
+    {
+        if (fightOver) return;
+        FaceEachOther();
+        MaintainDistance();
     }
     #endregion
 
@@ -85,6 +98,86 @@ public class BattleManager : MonoBehaviour
         PlayIdle(player1.GetComponentInChildren<Animator>());
         PlayIdle(player2.GetComponentInChildren<Animator>());
         StartCoroutine(MainLoop());
+    }
+    #endregion
+
+    #region Mesafe ve Yön
+    private void FaceEachOther()
+    {
+        if (!player1 || !player2) return;
+        player1.transform.LookAt(player2.transform.position, Vector3.up);
+        player2.transform.LookAt(player1.transform.position, Vector3.up);
+    }
+
+    private void MaintainDistance()
+    {
+        float dist = Vector3.Distance(player1.transform.position, player2.transform.position);
+        if (dist > maxDistance)
+        {
+            MoveTowards(player1, player2);
+            MoveTowards(player2, player1);
+        }
+        else if (dist < minDistance)
+        {
+            MoveAway(player1, player2);
+            MoveAway(player2, player1);
+        }
+        else
+        {
+            StopMoving(player1);
+            StopMoving(player2);
+        }
+    }
+
+    private void MoveTowards(GameObject mover, GameObject target)
+    {
+        var anim = mover.GetComponentInChildren<Animator>();
+        if (anim && IsFree(anim))
+        {
+            Vector3 dir = (target.transform.position - mover.transform.position).normalized;
+            mover.transform.position += dir * walkSpeed * Time.deltaTime;
+            PlayWalk(anim, 1f);
+        }
+    }
+
+    private void MoveAway(GameObject mover, GameObject target)
+    {
+        var anim = mover.GetComponentInChildren<Animator>();
+        if (anim && IsFree(anim))
+        {
+            Vector3 dir = (mover.transform.position - target.transform.position).normalized;
+            mover.transform.position += dir * walkSpeed * Time.deltaTime;
+            PlayWalk(anim, -1f);
+        }
+    }
+
+    private void StopMoving(GameObject mover)
+    {
+        var anim = mover.GetComponentInChildren<Animator>();
+        if (anim && anim.GetCurrentAnimatorStateInfo(0).IsName(walkClip))
+        {
+            anim.speed = 1f;
+            PlayIdle(anim);
+        }
+    }
+
+    private bool IsFree(Animator anim)
+    {
+        var state = anim.GetCurrentAnimatorStateInfo(0);
+        return state.IsName(idleClip) || state.IsName(walkClip);
+    }
+
+    private void PlayWalk(Animator anim, float dir)
+    {
+        if (!anim) return;
+        int id = Animator.StringToHash(walkClip);
+        if (anim.HasState(0, id))
+        {
+            float normTime = dir < 0f ? 1f : 0f;
+            anim.speed = Mathf.Abs(dir);
+            anim.Play(id, 0, normTime);
+            if (dir < 0f) anim.speed = -anim.speed;
+        }
     }
     #endregion
 
