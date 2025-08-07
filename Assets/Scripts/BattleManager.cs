@@ -3,7 +3,9 @@ using System.Collections;
 
 public enum AttackOutcome { None, Hit, Blocked, Dodged }
 
-/// <summary>Tur-bazlı düello yöneticisi – sadeleştirilmiş sürüm</summary>
+/// <summary>
+/// Basit yapay zekâ ile gerçek zamanlı düello yöneticisi
+/// </summary>
 public class BattleManager : MonoBehaviour
 {
     #region Inspector
@@ -41,8 +43,6 @@ public class BattleManager : MonoBehaviour
 
     #region Alanlar
     private int p1HP, p2HP;
-    private int p1Slot, p2Slot;
-    private bool p1Turn = true;
     private bool fightOver = false;
     private GameObject currentAttacker;
     public AttackOutcome LastAttackOutcome { get; private set; } = AttackOutcome.None;
@@ -108,12 +108,15 @@ public class BattleManager : MonoBehaviour
             enabled = true;
 
         p1HP = p2HP = startHP;
-        p1Slot = p2Slot = 0; p1Turn = true; fightOver = false; actionInProgress = false;
+        fightOver = false;
+        actionInProgress = false;
         LastAttackOutcome = AttackOutcome.None;
 
         PlayIdle(player1.GetComponentInChildren<Animator>());
         PlayIdle(player2.GetComponentInChildren<Animator>());
-        StartCoroutine(MainLoop());
+
+        StartCoroutine(CharacterAI(player1, player2, p1Skills));
+        StartCoroutine(CharacterAI(player2, player1, p2Skills));
     }
     #endregion
 
@@ -199,24 +202,29 @@ public class BattleManager : MonoBehaviour
     }
     #endregion
 
-    #region Ana Döngü
-    private IEnumerator MainLoop()
+    #region Yapay Zekâ
+    private IEnumerator CharacterAI(GameObject self, GameObject opponent, string[] skills)
     {
+        int slot = 0;
         while (!fightOver)
         {
-            if (p1Turn)
-            {
-                yield return RunSlot(player1, player2, p1Skills[p1Slot]);
-                p1Slot = (p1Slot + 1) % p1Skills.Length;
-                p1Turn = false;
-            }
-            else
-            {
-                yield return RunSlot(player2, player1, p2Skills[p2Slot]);
-                p2Slot = (p2Slot + 1) % p2Skills.Length;
-                p1Turn = true;
-            }
-            yield return new WaitForSeconds(.4f);
+            // küçük düşünme gecikmesi
+            float delay = Random.Range(.3f, .8f);
+            if (LastAttackOutcome == AttackOutcome.Hit && currentAttacker == self)
+                delay *= .5f;                    // avantajı değerlendir
+            else if (LastAttackOutcome == AttackOutcome.Hit && currentAttacker == opponent)
+                delay *= 1.5f;                   // darbe aldıysa yavaşla
+            yield return new WaitForSeconds(delay);
+
+            if (fightOver) yield break;
+            if (actionInProgress) { yield return null; continue; }
+
+            actionInProgress = true;
+            yield return RunSlot(self, opponent, skills[slot]);
+            actionInProgress = false;
+
+            slot = (slot + 1) % skills.Length;
+            yield return null;
         }
     }
     #endregion
@@ -224,7 +232,6 @@ public class BattleManager : MonoBehaviour
     #region Slot İşleyicisi
     private IEnumerator RunSlot(GameObject atk, GameObject def, string attackClip)
     {
-        actionInProgress = true;
         currentAttacker = atk;
 
         yield return MoveToStrikeDistance(atk, def);
@@ -283,7 +290,6 @@ public class BattleManager : MonoBehaviour
                 yield return PlayBlockSequence(defAnim);   // attacker react kaldırıldı
                 atkAnim.speed = origSpeed;
                 PlayIdle(atkAnim);
-                actionInProgress = false;
                 yield break;
             }
         }
@@ -297,8 +303,6 @@ public class BattleManager : MonoBehaviour
             PlayIdle(atkAnim);
         if (!dodged && !(blocked && attackClip.StartsWith("Attack 2")))
             PlayIdle(defAnim);
-
-        actionInProgress = false;
 
     }
     #endregion
