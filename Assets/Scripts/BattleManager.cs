@@ -65,8 +65,7 @@ public class BattleManager : MonoBehaviour
     {
         if (fightOver) return;
         FaceEachOther();
-        if (!actionInProgress)
-            MaintainDistance();
+        MaintainDistance();
     }
     #endregion
 
@@ -191,15 +190,6 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private IEnumerator MoveToStrikeDistance(GameObject mover, GameObject target)
-    {
-        while (Vector3.Distance(mover.transform.position, target.transform.position) > minDistance)
-        {
-            MoveTowards(mover, target);
-            yield return null;
-        }
-        StopMoving(mover);
-    }
     #endregion
 
     #region Yapay Zekâ
@@ -234,7 +224,7 @@ public class BattleManager : MonoBehaviour
     {
         currentAttacker = atk;
 
-        yield return MoveToStrikeDistance(atk, def);
+        
 
         var atkStats = atk.GetComponent<CharacterStats>();
         var defStats = def.GetComponent<CharacterStats>();
