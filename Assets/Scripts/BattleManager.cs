@@ -234,16 +234,30 @@ public class BattleManager : MonoBehaviour
             }
         }
 
-        if (clip.StartsWith("Combo 1") && atk.TryGetComponent(out Combo1AnimationEvents c)) Set(c);
-        else if (clip.StartsWith("Attack 1") && atk.TryGetComponent(out Attack1AnimationEvents a1)) Set(a1);
-        else if (clip.StartsWith("Attack 2") && atk.TryGetComponent(out Attack2AnimationEvents a2)) Set(a2);
-        else if (clip.StartsWith("Power Attack 2") &&
-                 atk.TryGetComponent(out PowerAttack2AnimationEvents p2)) Set(p2);
-        else if (clip.Contains("360") && atk.TryGetComponent(out Attack360AnimationEvents a360)) Set(a360);
+        if (clip.StartsWith("Combo 1"))
+        {
+            foreach (var c in atk.GetComponentsInChildren<Combo1AnimationEvents>(true)) Set(c);
+        }
+        else if (clip.StartsWith("Attack 1"))
+        {
+            foreach (var a1 in atk.GetComponentsInChildren<Attack1AnimationEvents>(true)) Set(a1);
+        }
+        else if (clip.StartsWith("Attack 2"))
+        {
+            foreach (var a2 in atk.GetComponentsInChildren<Attack2AnimationEvents>(true)) Set(a2);
+        }
+        else if (clip.StartsWith("Power Attack 2"))
+        {
+            foreach (var p2 in atk.GetComponentsInChildren<PowerAttack2AnimationEvents>(true)) Set(p2);
+        }
+        else if (clip.Contains("360"))
+        {
+            foreach (var a360 in atk.GetComponentsInChildren<Attack360AnimationEvents>(true)) Set(a360);
+        }
     }
     #endregion
 
-    #region Hasar & Ölüm
+        #region Hasar & Ölüm
     public void ApplyDamage(GameObject defender, int baseDamage)
     {
         int dmg = baseDamage;

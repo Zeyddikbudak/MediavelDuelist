@@ -17,12 +17,19 @@ public class Attack2AnimationEvents : MonoBehaviour
     [Range(0.05f, .2f)]
     public float rewindSeconds = 0.10f;
 
+    private bool hitProcessed;
+
+    private void OnEnable() => hitProcessed = false;
+
     /* event tetikleyici */
     public void OnAttack2Hit() => HandleHit();
 
     /* ------------------ */
     private void HandleHit()
     {
+        if (hitProcessed) return;
+        hitProcessed = true;
+
         if (battleManager == null || battleManager.FightOver) return;
 
         if (battleManager.LastAttackOutcome == AttackOutcome.Blocked)
