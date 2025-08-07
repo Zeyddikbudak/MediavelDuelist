@@ -204,8 +204,17 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip) / defAnim.speed);
         }
 
+        // Record the final transform after root motion so we can
+        // keep the character at this position / rotation once root
+        // motion is disabled again.
+        Vector3 finalPos = defAnim.transform.position;
+        Quaternion finalRot = defAnim.transform.rotation;
+
         defAnim.applyRootMotion = originalRoot;
         defAnim.speed = originalSpeed;
+
+        defAnim.transform.SetPositionAndRotation(finalPos, finalRot);
+        PlayIdle(defAnim);
 
     }
     #endregion
