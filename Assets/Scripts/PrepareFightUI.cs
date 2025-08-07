@@ -128,10 +128,12 @@ public class PrepareFightUI : MonoBehaviour
         battleManager.SetPlayerSkillSet(attack.ToArray(), defend.ToArray());
         battleManager.StartBattle();
 
-        // UI nesnesi ile BattleManager aynı GameObject üzerinde olabilir. Bu durumda
-        // tüm GameObject'i kapatmak, savaş döngüsünü de sonlandıracağı için yalnızca
-        // UI bileşenlerini gizle.
-        if (battleManager && battleManager.gameObject == gameObject)
+        // UI nesnesi ile BattleManager aynı GameObject üzerinde veya onun alt
+        // objelerinden birinde olabilir. Böyle bir durumda tüm GameObject'i
+        // kapatmak, BattleManager'ı da devre dışı bırakacağı için yalnızca UI
+        // bileşenlerini gizle.
+        if (battleManager && (battleManager.transform == transform ||
+                              battleManager.transform.IsChildOf(transform)))
         {
             if (slotParent) slotParent.gameObject.SetActive(false);
             if (skillContentParent) skillContentParent.gameObject.SetActive(false);
