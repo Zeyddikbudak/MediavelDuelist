@@ -611,7 +611,7 @@ Animator:
   m_Controller: {fileID: 9100000, guid: 3d58ab7511211044280bb67aa694502d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
-  m_ApplyRootMotion: 0
+  m_ApplyRootMotion: 1
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
@@ -668,9 +668,8 @@ MonoBehaviour:
   opponentAnimator: {fileID: 0}
   battleManager: {fileID: 0}
   damageAmount: 10
-  blockStateName: Block
   defenderBlockReactClip: Defender Block React
-  attackerIdleClip: Standing
+  idleClip: Standing
   rewindSeconds: 0.1
 --- !u!114 &394134623
 MonoBehaviour:
@@ -716,8 +715,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c45404cf4477add458615277b4162e00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Strength: 30
-  Dexterity: 10
+  Strength: 1
+  Dexterity: 30
   Constitution: 1
   Intelligence: 1
 --- !u!1 &410087039
@@ -898,6 +897,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player2
       objectReference: {fileID: 0}
+    - target: {fileID: 6939457651698025839, guid: 38d9d177254e0ef46b884fc4868042f7, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7522952343510789522, guid: 38d9d177254e0ef46b884fc4868042f7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.3956945
@@ -996,7 +999,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 40, y: 40}
   m_AnchorMax: {x: 40, y: 40}
-  m_AnchoredPosition: {x: -41396, y: -19947.5}
+  m_AnchoredPosition: {x: -41396, y: -19989}
   m_SizeDelta: {x: 1048, y: 505}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &510740213
@@ -1266,7 +1269,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0000101348305}
+  m_AnchoredPosition: {x: 0, y: 0.000022007447}
   m_SizeDelta: {x: 60, y: 80}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &816424904
@@ -1561,9 +1564,8 @@ MonoBehaviour:
   opponentAnimator: {fileID: 0}
   battleManager: {fileID: 0}
   damageAmount: 10
-  blockStateName: Block
   defenderBlockReactClip: Defender Block React
-  attackerIdleClip: Standing
+  idleClip: Standing
   rewindSeconds: 0.1
 --- !u!114 &881983408
 MonoBehaviour:
@@ -1609,8 +1611,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c45404cf4477add458615277b4162e00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Strength: 30
-  Dexterity: 10
+  Strength: 1
+  Dexterity: 30
   Constitution: 1
   Intelligence: 1
 --- !u!224 &888802421 stripped
@@ -1976,7 +1978,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 311711337}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.9999687
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
