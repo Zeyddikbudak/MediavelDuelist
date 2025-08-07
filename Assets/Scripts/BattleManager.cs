@@ -181,8 +181,6 @@ public class BattleManager : MonoBehaviour
         if (!defAnim) yield break;
 
         float originalSpeed = defAnim.speed;
-        bool originalRootMotion = defAnim.applyRootMotion;
-        defAnim.applyRootMotion = true;
         defAnim.speed = 1.4f;
 
         int dodgeId = Animator.StringToHash(dodgeClip);
@@ -201,8 +199,20 @@ public class BattleManager : MonoBehaviour
             yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip) / defAnim.speed);
         }
 
+        // Dodge sırasında gerçekleşen root-motion'u üst objeye aktararak
+        // karakterin animasyon bitiminde başlangıç konumuna dönmesini engelle.
+        var t = defAnim.transform;
+        var parent = t.parent;
+        if (parent)
+        {
+            parent.position = t.position;
+            parent.rotation = t.rotation;
+            t.localPosition = Vector3.zero;
+            t.localRotation = Quaternion.identity;
+        }
+
         defAnim.speed = originalSpeed;
-        defAnim.applyRootMotion = originalRootMotion;
+        
     }
     #endregion
 
