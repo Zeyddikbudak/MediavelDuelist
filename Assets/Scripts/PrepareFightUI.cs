@@ -121,7 +121,20 @@ public class PrepareFightUI : MonoBehaviour
         battleManager.SetPlayerSkillSet(attack.ToArray(), defend.ToArray());
         battleManager.StartBattle();
 
-        gameObject.SetActive(false);
+        // UI nesnesi ile BattleManager aynı GameObject üzerinde olabilir. Bu durumda
+        // tüm GameObject'i kapatmak, savaş döngüsünü de sonlandıracağı için yalnızca
+        // UI bileşenlerini gizle.
+        if (battleManager && battleManager.gameObject == gameObject)
+        {
+            if (slotParent) slotParent.gameObject.SetActive(false);
+            if (skillContentParent) skillContentParent.gameObject.SetActive(false);
+            if (startButton) startButton.gameObject.SetActive(false);
+            enabled = false; // sadece bu script'i devre dışı bırak
+        }
+        else
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     private bool ValidateSelection()
