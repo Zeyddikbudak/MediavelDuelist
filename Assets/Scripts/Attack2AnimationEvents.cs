@@ -26,13 +26,18 @@ public class Attack2AnimationEvents : MonoBehaviour
     {
         if (battleManager == null || battleManager.FightOver) return;
 
-        if (IsBlocked())
+        bool blocked = IsBlocked();
+        Debug.Log($"Attack2 ► {name} hit event. Defender state: {opponentAnimator.GetCurrentAnimatorStateInfo(0).shortNameHash}, blocked? {blocked}");
+
+        if (blocked)
         {
+            Debug.Log("Attack2 ► Vuruş blocklandı, hasar uygulanmayacak");
             PlayDefenderReact();
             RewindAttacker();
             return;  // Block’ta hasar uygulanmaz
         }
 
+        Debug.Log("Attack2 ► Block başarısız, hasar uygulanıyor");
         ApplyDamageNormal();
     }
 
@@ -40,14 +45,17 @@ public class Attack2AnimationEvents : MonoBehaviour
     private bool IsBlocked()
     {
         var info = opponentAnimator.GetCurrentAnimatorStateInfo(0);
-        if (info.IsName(blockStateName)) return true;
+        bool inBlock = info.IsName(blockStateName);
 
+        bool transitioning = false;
         if (opponentAnimator.IsInTransition(0))
         {
             var next = opponentAnimator.GetNextAnimatorStateInfo(0);
-            if (next.IsName(blockStateName)) return true;
+            transitioning = next.IsName(blockStateName);
         }
-        return false;
+
+        Debug.Log($"Attack2 ► IsBlocked? current:{inBlock} transitionToBlock:{transitioning}");
+        return inBlock || transitioning;
     }
 
     /* Defender için anında Block React */
@@ -112,5 +120,6 @@ public class Attack2AnimationEvents : MonoBehaviour
 
         opponentAnimator.Play(hurt[pick], 0, 0f);
         battleManager.ApplyDamage(opponent, damageAmount);
+        Debug.Log($"Attack2 ► {opponent.name} {hurt[pick]} animasyonuyla {damageAmount} hasar aldı");
     }
 }

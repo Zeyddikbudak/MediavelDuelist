@@ -139,7 +139,12 @@ public class BattleManager : MonoBehaviour
             if (attackClip.StartsWith("Attack 2"))
             {
                 if (defAnim.HasState(0, Animator.StringToHash(blockClip)))
+                {
                     defAnim.CrossFade(blockClip, 0f, 0);
+                    // Anında state'e geçiş yapıldı mı kontrolü için Update(0)
+                    defAnim.Update(0f);
+                    Debug.Log($"RunSlot ► Defender {def.name} Attack2'de block state'ine geçti");
+                }
                 yield return new WaitForSeconds(ClipLen(atkAnim, attackClip) + .05f);
             }
             else
