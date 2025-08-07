@@ -182,11 +182,6 @@ public class BattleManager : MonoBehaviour
             defAnim.CrossFade(dodgeClip, 0f, 0);
 
         yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip));
-
-        if (defAnim.HasState(0, Animator.StringToHash(dodgeForwardClip)))
-            defAnim.CrossFade(dodgeForwardClip, 0f, 0);
-
-        yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip));
     }
     #endregion
 
