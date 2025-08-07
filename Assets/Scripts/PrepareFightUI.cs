@@ -52,6 +52,7 @@ public class PrepareFightUI : MonoBehaviour
 
         foreach (var sd in all)
         {
+            if (!sd.isAttack) continue; // savunma yeteneklerini listeleme
             var copy = sd;
             var btn = Instantiate(skillButtonPrefab, skillContentParent, false);
             btn.name = $"SkillBtn_{copy.name}";

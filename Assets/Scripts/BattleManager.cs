@@ -93,6 +93,12 @@ public class BattleManager : MonoBehaviour
 
     public void StartBattle()
     {
+        if (p1Skills.Length == 0 || p2Skills.Length == 0)
+        {
+            Debug.LogError("BattleManager ► Skill listeleri boş, savaş başlatılamıyor.");
+            return;
+        }
+
         p1HP = p2HP = startHP;
         p1Slot = p2Slot = 0; p1Turn = true; fightOver = false; actionInProgress = false;
         LastAttackOutcome = AttackOutcome.None;
