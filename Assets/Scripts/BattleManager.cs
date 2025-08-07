@@ -186,8 +186,21 @@ public class BattleManager : MonoBehaviour
         bool originalRoot = defAnim.applyRootMotion;
         defAnim.applyRootMotion = false;
 
-        yield return PlayClipWithRootMotion(defAnim, dodgeClip);
-        yield return PlayClipWithRootMotion(defAnim, dodgeForwardClip);
+        int dodgeId = Animator.StringToHash(dodgeClip);
+        if (defAnim.HasState(0, dodgeId))
+        {
+            defAnim.CrossFade(dodgeId, 0f, 0);
+            defAnim.Update(0f);
+            yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip) / defAnim.speed);
+        }
+
+        int forwardId = Animator.StringToHash(dodgeForwardClip);
+        if (defAnim.HasState(0, forwardId))
+        {
+            defAnim.CrossFade(forwardId, 0f, 0);
+            defAnim.Update(0f);
+            yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip) / defAnim.speed);
+        }
 
         defAnim.applyRootMotion = originalRoot;
         defAnim.speed = originalSpeed;
@@ -195,32 +208,7 @@ public class BattleManager : MonoBehaviour
     }
     #endregion
 
-    private IEnumerator PlayClipWithRootMotion(Animator anim, string clip)
-    {
-        int clipId = Animator.StringToHash(clip);
-        if (!anim.HasState(0, clipId)) yield break;
-
-        anim.CrossFade(clipId, 0f, 0);
-        anim.Update(0f);
-
-        float len = ClipLen(anim, clip) / anim.speed;
-        float timer = 0f;
-        var parent = anim.transform.parent;
-
-        while (timer < len)
-        {
-            yield return new WaitForFixedUpdate();
-            timer += Time.fixedDeltaTime;
-
-            if (parent)
-            {
-                parent.position += anim.deltaPosition;
-                parent.rotation *= anim.deltaRotation;
-                anim.transform.localPosition = Vector3.zero;
-                anim.transform.localRotation = Quaternion.identity;
-            }
-        }
-    }
+    
 
     #region Block (yalnızca defender react)
     private IEnumerator PlayBlockSequence(Animator defAnim)
