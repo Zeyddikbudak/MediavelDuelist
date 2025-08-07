@@ -11,7 +11,6 @@ public class Attack2AnimationEvents : MonoBehaviour
     public int damageAmount = 15;
 
     [Header("State / Klip Adları")]
-    public string blockStateName = "Block";
     public string defenderBlockReactClip = "Defender Block React";
     public string idleClip = "Standing";
 
@@ -26,10 +25,7 @@ public class Attack2AnimationEvents : MonoBehaviour
     {
         if (battleManager == null || battleManager.FightOver) return;
 
-        bool blocked = IsBlocked();
-        Debug.Log($"Attack2 ► {name} hit event. Defender state: {opponentAnimator.GetCurrentAnimatorStateInfo(0).shortNameHash}, blocked? {blocked}");
-
-        if (blocked)
+        if (battleManager.LastAttackOutcome == AttackOutcome.Blocked)
         {
             Debug.Log("Attack2 ► Vuruş blocklandı, hasar uygulanmayacak");
             PlayDefenderReact();
@@ -37,25 +33,11 @@ public class Attack2AnimationEvents : MonoBehaviour
             return;  // Block’ta hasar uygulanmaz
         }
 
+        if (battleManager.LastAttackOutcome != AttackOutcome.Hit)
+            return;
+
         Debug.Log("Attack2 ► Block başarısız, hasar uygulanıyor");
         ApplyDamageNormal();
-    }
-
-    /* Block tespiti: geçerli state veya geçişteki next-state Block ise true */
-    private bool IsBlocked()
-    {
-        var info = opponentAnimator.GetCurrentAnimatorStateInfo(0);
-        bool inBlock = info.IsName(blockStateName);
-
-        bool transitioning = false;
-        if (opponentAnimator.IsInTransition(0))
-        {
-            var next = opponentAnimator.GetNextAnimatorStateInfo(0);
-            transitioning = next.IsName(blockStateName);
-        }
-
-        Debug.Log($"Attack2 ► IsBlocked? current:{inBlock} transitionToBlock:{transitioning}");
-        return inBlock || transitioning;
     }
 
     /* Defender için anında Block React */

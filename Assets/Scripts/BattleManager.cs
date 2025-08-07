@@ -1,5 +1,7 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
+
+public enum AttackOutcome { None, Hit, Blocked, Dodged }
 
 /// <summary>Tur-bazlı düello yöneticisi – sadeleştirilmiş sürüm</summary>
 public class BattleManager : MonoBehaviour
@@ -36,6 +38,7 @@ public class BattleManager : MonoBehaviour
     private bool p1Turn = true;
     private bool fightOver = false;
     private GameObject currentAttacker;
+    public AttackOutcome LastAttackOutcome { get; private set; } = AttackOutcome.None;
     #endregion
 
     #region Özellikler
@@ -67,6 +70,7 @@ public class BattleManager : MonoBehaviour
     {
         p1HP = p2HP = startHP;
         p1Slot = p2Slot = 0; p1Turn = true; fightOver = false;
+        LastAttackOutcome = AttackOutcome.None;
 
         PlayIdle(player1.GetComponentInChildren<Animator>());
         PlayIdle(player2.GetComponentInChildren<Animator>());
@@ -111,6 +115,9 @@ public class BattleManager : MonoBehaviour
             if (Random.value < defStats.Dexterity * .02f) dodged = true;
             else if (Random.value < defStats.Strength * .02f) blocked = true;
         }
+        LastAttackOutcome = dodged ? AttackOutcome.Dodged
+                                   : blocked ? AttackOutcome.Blocked
+                                             : AttackOutcome.Hit;
 
         /* 2) Animator referansları */
         var atkAnim = atk.GetComponentInChildren<Animator>();
