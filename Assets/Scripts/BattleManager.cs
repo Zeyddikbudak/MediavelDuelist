@@ -182,26 +182,22 @@ public class BattleManager : MonoBehaviour
 
         float originalSpeed = defAnim.speed;
         defAnim.speed = 1.4f;
-
-        bool originalRoot = defAnim.applyRootMotion;
-        // Enable root motion during dodge so the character's position
-        // updates with the animation instead of snapping back afterwards.
-        defAnim.applyRootMotion = true;
+       
 
         int dodgeId = Animator.StringToHash(dodgeClip);
         if (defAnim.HasState(0, dodgeId))
         {
             defAnim.CrossFade(dodgeId, 0f, 0);
-            defAnim.Update(0f);
-            yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip) / defAnim.speed);
+            
+            
         }
 
         int forwardId = Animator.StringToHash(dodgeForwardClip);
         if (defAnim.HasState(0, forwardId))
         {
             defAnim.CrossFade(forwardId, 0f, 0);
-            defAnim.Update(0f);
-            yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip) / defAnim.speed);
+            
+            
         }
 
         // Record the final transform after root motion so we can
