@@ -184,7 +184,9 @@ public class BattleManager : MonoBehaviour
         defAnim.speed = 1.4f;
 
         bool originalRoot = defAnim.applyRootMotion;
-        defAnim.applyRootMotion = false;
+        // Enable root motion during dodge so the character's position
+        // updates with the animation instead of snapping back afterwards.
+        defAnim.applyRootMotion = true;
 
         int dodgeId = Animator.StringToHash(dodgeClip);
         if (defAnim.HasState(0, dodgeId))
