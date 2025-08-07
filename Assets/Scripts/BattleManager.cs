@@ -23,7 +23,8 @@ public class BattleManager : MonoBehaviour
 
     [Header("Dodge Klipleri")]
     public string dodgeClip = "Dodge";
-    
+    public string dodgeForwardClip = "Dodge Forward";
+
 
     [Header("Block Klipleri")]
     public string blockClip = "Block";
@@ -58,7 +59,12 @@ public class BattleManager : MonoBehaviour
     private void SetFixedAnimator(GameObject g)
     {
         var a = g.GetComponentInChildren<Animator>();
-        if (a) { a.updateMode = AnimatorUpdateMode.Fixed; a.animatePhysics = true; }
+        if (a)
+        {
+            a.updateMode = AnimatorUpdateMode.Fixed;
+            a.animatePhysics = true;
+            a.applyRootMotion = true;   //  <-- HER ZAMAN açık kalsın
+        }
     }
 
     public void SetPlayerSkillSet(string[] p1Attacks, string[] p2Attacks)
@@ -172,31 +178,43 @@ public class BattleManager : MonoBehaviour
             PlayIdle(atkAnim);
         if (!dodged && !(blocked && attackClip.StartsWith("Attack 2")))
             PlayIdle(defAnim);
+
     }
     #endregion
+
+
 
     #region Dodge
-    private IEnumerator PlayDodgeSequence(Animator defAnim)
+    private IEnumerator PlayDodgeSequence(Animator anim)
     {
-        if (!defAnim) yield break;
+        if (!anim) yield break;
 
-        float originalSpeed = defAnim.speed;
-        defAnim.speed = 1.4f;
+        float originalSpeed = anim.speed;
+        anim.speed = 1.2f;                       // ufak hız takviyesi
 
+        /* 1) Dodge */
         int dodgeId = Animator.StringToHash(dodgeClip);
-        if (defAnim.HasState(0, dodgeId))
+        if (!anim.HasState(0, dodgeId)) { anim.speed = originalSpeed; yield break; }
+
+        anim.CrossFade(dodgeId, 0f, 0);
+        float dodgeLen = ClipLen(anim, dodgeClip);
+
+        /* 2) Dodge Forward — son 0.1 s kala başlat */
+        yield return new WaitForSeconds(dodgeLen - 0.10f);
+
+        int fwdId = Animator.StringToHash(dodgeForwardClip);
+        if (anim.HasState(0, fwdId))
         {
-            defAnim.CrossFade(dodgeId, 0f, 0);
-            yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip));
+            anim.CrossFade(fwdId, 0f, 0);
+            yield return new WaitForSeconds(ClipLen(anim, dodgeForwardClip));
         }
 
-        defAnim.speed = originalSpeed;
-        PlayIdle(defAnim);
-
+        /* 3) Hız sıfırla */
+        anim.speed = originalSpeed;
     }
     #endregion
 
-    
+
 
     #region Block (yalnızca defender react)
     private IEnumerator PlayBlockSequence(Animator defAnim)
