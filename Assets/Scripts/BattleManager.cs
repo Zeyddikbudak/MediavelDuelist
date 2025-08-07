@@ -99,6 +99,14 @@ public class BattleManager : MonoBehaviour
             return;
         }
 
+        // Bu component devre dışıyken coroutine'ler çalışmaz ve karakterler
+        // yerlerinde donar. StartBattle, çağrıldığı anda BattleManager'ın
+        // etkin olduğundan emin olmalıdır.
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
+        if (!enabled)
+            enabled = true;
+
         p1HP = p2HP = startHP;
         p1Slot = p2Slot = 0; p1Turn = true; fightOver = false; actionInProgress = false;
         LastAttackOutcome = AttackOutcome.None;
@@ -140,23 +148,21 @@ public class BattleManager : MonoBehaviour
     private void MoveTowards(GameObject mover, GameObject target)
     {
         var anim = mover.GetComponentInChildren<Animator>();
-        if (anim && IsFree(anim))
-        {
-            Vector3 dir = (target.transform.position - mover.transform.position).normalized;
-            mover.transform.position += dir * walkSpeed * Time.deltaTime;
-            PlayWalk(anim, 1f);
-        }
+        if (!anim) return;
+
+        Vector3 dir = (target.transform.position - mover.transform.position).normalized;
+        mover.transform.position += dir * walkSpeed * Time.deltaTime;
+        PlayWalk(anim, 1f);
     }
 
     private void MoveAway(GameObject mover, GameObject target)
     {
         var anim = mover.GetComponentInChildren<Animator>();
-        if (anim && IsFree(anim))
-        {
-            Vector3 dir = (mover.transform.position - target.transform.position).normalized;
-            mover.transform.position += dir * walkSpeed * Time.deltaTime;
-            PlayWalk(anim, -1f);
-        }
+        if (!anim) return;
+
+        Vector3 dir = (mover.transform.position - target.transform.position).normalized;
+        mover.transform.position += dir * walkSpeed * Time.deltaTime;
+        PlayWalk(anim, -1f);
     }
 
     private void StopMoving(GameObject mover)
@@ -167,12 +173,6 @@ public class BattleManager : MonoBehaviour
             anim.speed = 1f;
             PlayIdle(anim);
         }
-    }
-
-    private bool IsFree(Animator anim)
-    {
-        var state = anim.GetCurrentAnimatorStateInfo(0);
-        return state.IsName(idleClip) || state.IsName(walkClip);
     }
 
     private void PlayWalk(Animator anim, float dir)
