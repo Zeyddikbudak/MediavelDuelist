@@ -46,6 +46,7 @@ public class BattleManager : MonoBehaviour
     private bool fightOver = false;
     private GameObject currentAttacker;
     public AttackOutcome LastAttackOutcome { get; private set; } = AttackOutcome.None;
+    private bool actionInProgress = false;
     #endregion
 
     #region Özellikler
@@ -64,7 +65,8 @@ public class BattleManager : MonoBehaviour
     {
         if (fightOver) return;
         FaceEachOther();
-        MaintainDistance();
+        if (!actionInProgress)
+            MaintainDistance();
     }
     #endregion
 
@@ -92,7 +94,7 @@ public class BattleManager : MonoBehaviour
     public void StartBattle()
     {
         p1HP = p2HP = startHP;
-        p1Slot = p2Slot = 0; p1Turn = true; fightOver = false;
+        p1Slot = p2Slot = 0; p1Turn = true; fightOver = false; actionInProgress = false;
         LastAttackOutcome = AttackOutcome.None;
 
         PlayIdle(player1.GetComponentInChildren<Animator>());
@@ -179,6 +181,16 @@ public class BattleManager : MonoBehaviour
             if (dir < 0f) anim.speed = -anim.speed;
         }
     }
+
+    private IEnumerator MoveToStrikeDistance(GameObject mover, GameObject target)
+    {
+        while (Vector3.Distance(mover.transform.position, target.transform.position) > minDistance)
+        {
+            MoveTowards(mover, target);
+            yield return null;
+        }
+        StopMoving(mover);
+    }
     #endregion
 
     #region Ana Döngü
@@ -206,7 +218,10 @@ public class BattleManager : MonoBehaviour
     #region Slot İşleyicisi
     private IEnumerator RunSlot(GameObject atk, GameObject def, string attackClip)
     {
+        actionInProgress = true;
         currentAttacker = atk;
+
+        yield return MoveToStrikeDistance(atk, def);
 
         var atkStats = atk.GetComponent<CharacterStats>();
         var defStats = def.GetComponent<CharacterStats>();
@@ -262,6 +277,7 @@ public class BattleManager : MonoBehaviour
                 yield return PlayBlockSequence(defAnim);   // attacker react kaldırıldı
                 atkAnim.speed = origSpeed;
                 PlayIdle(atkAnim);
+                actionInProgress = false;
                 yield break;
             }
         }
@@ -275,6 +291,8 @@ public class BattleManager : MonoBehaviour
             PlayIdle(atkAnim);
         if (!dodged && !(blocked && attackClip.StartsWith("Attack 2")))
             PlayIdle(defAnim);
+
+        actionInProgress = false;
 
     }
     #endregion
