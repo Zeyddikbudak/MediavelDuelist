@@ -51,11 +51,32 @@ public class Attack2AnimationEvents : MonoBehaviour
     }
 
     /* Defender için anında Block React */
+    /* Defender için anında Block React ve ardından Standing */
     private void PlayDefenderReact()
     {
         int hash = Animator.StringToHash(defenderBlockReactClip);
         if (opponentAnimator.HasState(0, hash))
+        {
             opponentAnimator.Play(hash, 0, 0f);
+            battleManager.StartCoroutine(ReturnDefenderToIdle());
+        }
+    }
+
+    private System.Collections.IEnumerator ReturnDefenderToIdle()
+    {
+        float len = ClipLength(opponentAnimator, defenderBlockReactClip);
+        yield return new WaitForSeconds(len);
+
+        int idleHash = Animator.StringToHash(attackerIdleClip);
+        if (opponentAnimator.HasState(0, idleHash))
+            opponentAnimator.CrossFade(idleHash, 0.05f, 0);
+    }
+
+    private float ClipLength(Animator anim, string clip, float def = 0.6f)
+    {
+        foreach (var c in anim.runtimeAnimatorController.animationClips)
+            if (c.name == clip) return c.length;
+        return def;
     }
 
     /* Saldıran animasyonu 0.10 s geri sarıp kaldığı yerden devam ettir */

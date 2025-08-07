@@ -117,7 +117,9 @@ public class BattleManager : MonoBehaviour
         var defAnim = def.GetComponentInChildren<Animator>();
 
         /* 3) Hit-event script’leri */
-        EnableHitHandlers(atk, def, defAnim, attackClip, !(dodged || blocked));
+        bool enableHandlers = !(dodged || blocked);
+        if (blocked && attackClip.StartsWith("Attack 2")) enableHandlers = true;
+        EnableHitHandlers(atk, def, defAnim, attackClip, enableHandlers);
 
         /* 4) Saldıran hız bonusu */
         float origSpeed = atkAnim.speed;
@@ -134,10 +136,19 @@ public class BattleManager : MonoBehaviour
         }
         else if (blocked)
         {
-            yield return PlayBlockSequence(defAnim);   // attacker react kaldırıldı
-            atkAnim.speed = origSpeed;
-            PlayIdle(atkAnim);
-            yield break;
+            if (attackClip.StartsWith("Attack 2"))
+            {
+                if (defAnim.HasState(0, Animator.StringToHash(blockClip)))
+                    defAnim.CrossFade(blockClip, 0f, 0);
+                yield return new WaitForSeconds(ClipLen(atkAnim, attackClip) + .05f);
+            }
+            else
+            {
+                yield return PlayBlockSequence(defAnim);   // attacker react kaldırıldı
+                atkAnim.speed = origSpeed;
+                PlayIdle(atkAnim);
+                yield break;
+            }
         }
         else
         {
@@ -146,7 +157,8 @@ public class BattleManager : MonoBehaviour
 
         atkAnim.speed = origSpeed;
         PlayIdle(atkAnim);
-        PlayIdle(defAnim);
+        if (!dodged && !(blocked && attackClip.StartsWith("Attack 2")))
+            PlayIdle(defAnim);
     }
     #endregion
 
@@ -162,7 +174,6 @@ public class BattleManager : MonoBehaviour
             defAnim.CrossFade(dodgeForwardClip, 0f, 0);
 
         yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip));
-        PlayIdle(defAnim);
     }
     #endregion
 
