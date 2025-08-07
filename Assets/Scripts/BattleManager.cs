@@ -183,38 +183,44 @@ public class BattleManager : MonoBehaviour
         float originalSpeed = defAnim.speed;
         defAnim.speed = 1.4f;
 
-        int dodgeId = Animator.StringToHash(dodgeClip);
-        if (defAnim.HasState(0, dodgeId))
-        {
-            defAnim.CrossFade(dodgeId, 0f, 0);
-            defAnim.Update(0f);
-            yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip) / defAnim.speed);
-        }
+        bool originalRoot = defAnim.applyRootMotion;
+        defAnim.applyRootMotion = false;
 
-        int dodgeForwardId = Animator.StringToHash(dodgeForwardClip);
-        if (defAnim.HasState(0, dodgeForwardId))
-        {
-            defAnim.CrossFade(dodgeForwardId, 0f, 0);
-            defAnim.Update(0f);
-            yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip) / defAnim.speed);
-        }
+        yield return PlayClipWithRootMotion(defAnim, dodgeClip);
+        yield return PlayClipWithRootMotion(defAnim, dodgeForwardClip);
 
-        // Dodge sırasında gerçekleşen root-motion'u üst objeye aktararak
-        // karakterin animasyon bitiminde başlangıç konumuna dönmesini engelle.
-        var t = defAnim.transform;
-        var parent = t.parent;
-        if (parent)
-        {
-            parent.position = t.position;
-            parent.rotation = t.rotation;
-            t.localPosition = Vector3.zero;
-            t.localRotation = Quaternion.identity;
-        }
-
+        defAnim.applyRootMotion = originalRoot;
         defAnim.speed = originalSpeed;
-        
+
     }
     #endregion
+
+    private IEnumerator PlayClipWithRootMotion(Animator anim, string clip)
+    {
+        int clipId = Animator.StringToHash(clip);
+        if (!anim.HasState(0, clipId)) yield break;
+
+        anim.CrossFade(clipId, 0f, 0);
+        anim.Update(0f);
+
+        float len = ClipLen(anim, clip) / anim.speed;
+        float timer = 0f;
+        var parent = anim.transform.parent;
+
+        while (timer < len)
+        {
+            yield return new WaitForFixedUpdate();
+            timer += Time.fixedDeltaTime;
+
+            if (parent)
+            {
+                parent.position += anim.deltaPosition;
+                parent.rotation *= anim.deltaRotation;
+                anim.transform.localPosition = Vector3.zero;
+                anim.transform.localRotation = Quaternion.identity;
+            }
+        }
+    }
 
     #region Block (yalnızca defender react)
     private IEnumerator PlayBlockSequence(Animator defAnim)
