@@ -13,7 +13,7 @@ public class Attack2AnimationEvents : MonoBehaviour
     [Header("State / Klip Adları")]
     public string blockStateName = "Block";
     public string defenderBlockReactClip = "Defender Block React";
-    public string attackerIdleClip = "Standing";
+    public string idleClip = "Standing";
 
     [Range(0.05f, .2f)]
     public float rewindSeconds = 0.10f;
@@ -67,7 +67,7 @@ public class Attack2AnimationEvents : MonoBehaviour
         float len = ClipLength(opponentAnimator, defenderBlockReactClip);
         yield return new WaitForSeconds(len);
 
-        int idleHash = Animator.StringToHash(attackerIdleClip);
+        int idleHash = Animator.StringToHash(idleClip);
         if (opponentAnimator.HasState(0, idleHash))
             opponentAnimator.CrossFade(idleHash, 0.05f, 0);
     }
@@ -93,7 +93,7 @@ public class Attack2AnimationEvents : MonoBehaviour
         anim.Update(0f);                           // Hemen uygula
 
         // İstersen idle’a da geç:
-        int idleHash = Animator.StringToHash(attackerIdleClip);
+        int idleHash = Animator.StringToHash(idleClip);
         if (anim.HasState(0, idleHash))
             anim.CrossFade(idleHash, 0.05f, 0);
     }

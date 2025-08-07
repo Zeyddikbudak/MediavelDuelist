@@ -156,7 +156,8 @@ public class BattleManager : MonoBehaviour
         }
 
         atkAnim.speed = origSpeed;
-        PlayIdle(atkAnim);
+        if (!(blocked && attackClip.StartsWith("Attack 2")))
+            PlayIdle(atkAnim);
         if (!dodged && !(blocked && attackClip.StartsWith("Attack 2")))
             PlayIdle(defAnim);
     }
