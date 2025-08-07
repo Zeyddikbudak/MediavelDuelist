@@ -178,10 +178,31 @@ public class BattleManager : MonoBehaviour
     #region Dodge
     private IEnumerator PlayDodgeSequence(Animator defAnim)
     {
-        if (defAnim.HasState(0, Animator.StringToHash(dodgeClip)))
-            defAnim.CrossFade(dodgeClip, 0f, 0);
+        if (!defAnim) yield break;
 
-        yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip));
+        float originalSpeed = defAnim.speed;
+        bool originalRootMotion = defAnim.applyRootMotion;
+        defAnim.applyRootMotion = true;
+        defAnim.speed = 1.4f;
+
+        int dodgeId = Animator.StringToHash(dodgeClip);
+        if (defAnim.HasState(0, dodgeId))
+        {
+            defAnim.CrossFade(dodgeId, 0f, 0);
+            defAnim.Update(0f);
+            yield return new WaitForSeconds(ClipLen(defAnim, dodgeClip) / defAnim.speed);
+        }
+
+        int dodgeForwardId = Animator.StringToHash(dodgeForwardClip);
+        if (defAnim.HasState(0, dodgeForwardId))
+        {
+            defAnim.CrossFade(dodgeForwardId, 0f, 0);
+            defAnim.Update(0f);
+            yield return new WaitForSeconds(ClipLen(defAnim, dodgeForwardClip) / defAnim.speed);
+        }
+
+        defAnim.speed = originalSpeed;
+        defAnim.applyRootMotion = originalRootMotion;
     }
     #endregion
 
